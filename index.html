@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ATM, Dare or Double Dare!! 😈</title>
+<style>
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background-color: black;
+    color: #eee;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px;
+  }
+  h1 {
+    margin: 15px 0 5px;
+    font-size: 2rem;
+    text-align: center;
+    color: #ff4444;
+  }
+  /* Container for everything */
+  .container {
+    max-width: 480px;
+    width: 100%;
+    background: #222;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 15px #ff4444;
+  }
+  label {
+    display: block;
+    margin: 12px 0 6px;
+    font-weight: 600;
+  }
+  select, input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    margin-bottom: 12px;
+  }
+  button {
+    background-color: #ff4444;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 12px 16px;
+    margin: 6px 3px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.25s ease;
+    user-select: none;
+  }
+  button:hover, button:focus {
+    background-color: #cc0000;
+  }
+  #questionBox {
+    background: #111;
+    min-height: 100px;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 15px 0;
+    font-size: 1.2rem;
+    line-height: 1.4;
+    user-select: none;
+    white-space: pre-wrap;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  #timer {
+    font-weight: 700;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+  #playerTurn {
+    font-weight: 700;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 1.1rem;
+    color: #ff6666;
+  }
+  /* Truth/Dare buttons container */
+  .choice-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  /* Done or Punish buttons container */
+  .post-question-buttons {
+    display: none;
+    justify-content: center;
+    margin-top: 15px;
+    flex-wrap: wrap;
+  }
+  .post-question-buttons button {
+    margin: 6px 10px;
+    padding: 10px 18px;
+    font-size: 1rem;
+  }
+  /* Mystery box styling */
+  #mysteryBox {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
+    background: url('https://cdn-icons-png.flaticon.com/512/565/565547.png') no-repeat center center / contain;
+    cursor: pointer;
+    filter: drop-shadow(0 0 5px #ff4444);
+    z-index: 1000;
+  }
+  /* Punishment overlay */
+  #punishmentOverlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    color: #ff6666;
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: 40px 20px;
+    text-align: center;
+    z-index: 1100;
+    overflow-y: auto;
+  }
+  #punishmentOverlay button {
+    margin-top: 25px;
+    font-size: 1.2rem;
+    padding: 14px 20px;
+  }
+  /* Disclaimer popup */
+  #disclaimerOverlay {
+    display: none;
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.95);
+    color: #ff4444;
+    font-weight: 700;
+    padding: 30px 20px;
+    text-align: center;
+    z-index: 1200;
+    font-size: 1.3rem;
+  }
+  #disclaimerOverlay button {
+    margin-top: 20px;
+    background: #ff4444;
+    color: white;
+    font-size: 1.2rem;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+  }
+  /* Developer info button */
+  #devBtn {
+    position: fixed;
+    bottom: 12px;
+    right: 12px;
+    background: #ff4444;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 10px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 0 10px #ff4444;
+    user-select: none;
+    z-index: 1300;
+    font-size: 0.85rem;
+  }
+  #devInfo {
+    display: none;
+    position: fixed;
+    bottom: 60px;
+    right: 12px;
+    background: #222;
+    color: #ff6666;
+    padding: 14px 18px;
+    border-radius: 12px;
+    width: 260px;
+    box-shadow: 0 0 15px #ff4444;
+    font-size: 0.9rem;
+    z-index: 1350;
+    line-height: 1.4;
+    user-select: text;
+  }
+  /* Responsive */
+  @media (max-width: 520px) {
+    .container {
+      max-width: 95vw;
+      padding: 15px 12px;
+    }
+    h1 {
+      font-size: 1.6rem;
+    }
+    #questionBox {
+      font-size: 1rem;
+      min-height: 80px;
+    }
+    button {
+      font-size: 0.9rem;
+      padding: 10px 14px;
+      margin: 5px 4px;
+    }
+    #devInfo {
+      width: 85vw;
+      right: 7.5vw;
+      bottom: 70px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>ATM, Dare or Double Dare!! 😈</h1>
+
+<div class="container" id="mainContainer">
+
+  <label for="categorySelect">Choose Category:</label>
+  <select id="categorySelect">
+    <option value="">-- Select a Category --</option>
+    <option value="fun">Fun (Clean)</option>
+    <option value="mixed">Mixed (Some spicy)</option>
+    <option value="adult">18+ (Explicit)</option>
+  </select>
+
+  <label for="playersInput">Enter Player Names (comma separated):</label>
+  <input type="text" id="playersInput" placeholder="E.g., John, Jane, Mike" />
+
+  <button id="startBtn">Start Game</button>
+
+  <div id="disclaimerOverlay">
+    <p><strong>WARNING:</strong> The 18+ section contains explicit content. You must be 18 years or older to proceed. Are you 18+?</p>
+    <button id="agree18Btn">I am 18 or older</button>
+    <button id="decline18Btn">No, take me back</button>
+  </div>
+
+  <div id="gameArea" style="display:none;">
+    <div id="playerTurn">Player: --</div>
+    <div id="questionBox">Press Truth or Dare to start!</div>
+    <div id="timer">Time Left: --</div>
+
+    <div class="choice-buttons" id="choiceButtons">
+      <button id="truthBtn">Truth</button>
+      <button id="dareBtn">Dare</button>
+      <button id="doubleDareBtn">Double Dare</button>
+      <button id="skipBtn" title="Skip once per player">Skip Turn</button>
+    </div>
+
+    <div class="post-question-buttons" id="postQuestionButtons">
+      <button id="doneDareBtn">I've done the dare</button>
+      <button id="punishMeBtn">Punish me Daddyyyy for not doing the dare</button>
+    </div>
+
+    <button id="changeCategoryBtn" style="margin-top: 20px; background:#550000;">Change Category / Restart</button>
+
+  </div>
+</div>
+
+<!-- Mystery Box Icon -->
+<div id="mysteryBox" title="Click for your punishment!"></div>
+
+<!-- Punishment Overlay -->
+<div id="punishmentOverlay">
+  <div id="punishmentText"></div>
+  <button id="punishmentDoneBtn">Punishment Done! Let me continue!</button>
+</div>
+
+<!-- Developer Info -->
+<button id="devBtn">Developer</button>
+<div id="devInfo">
+  <strong>Adeoye Temitope Michael</strong><br/>
+  WhatsApp: 09123709511<br/>
+  Email: temitopemichael619@gmail.com
+</div>
+
+<script>
+  // Data - Truths, Dares & Punishments
+  const data = {
+    fun: {
+      truths: [
+        "What's your most embarrassing childhood memory?",
+        "Have you ever cheated in a game?",
+        "Who do you have a crush on?",
+        "What's a secret you've never told anyone?",
+        "What's your weirdest habit?",
+        // Add up to 80...
+      ],
+      dares: [
+        "Do a silly dance for 20 seconds.",
+        "Sing the chorus of your favorite song.",
+        "Do 10 jumping jacks.",
+        "Talk in a silly accent for the next round.",
+        "Pretend to be a cat for 30 seconds.",
+        // Add up to 80...
+      ],
+    },
+    mixed: {
+      truths: [
+        "What’s the wildest thing you've done at a party?",
+        "Have you ever lied to your best friend?",
+        "What's your biggest secret crush?",
+        "What's the most embarrassing thing you've done on a date?",
+        "Have you ever ghosted someone?",
+        // Add up to 80...
+      ],
+      dares: [
+        "Send a funny meme to your crush.",
+        "Wear your clothes backwards for the next hour.",
+        "Do 20 squats.",
+        "Let someone style your hair crazy.",
+        "Do an impression of your favorite celebrity.",
+        // Add up to 80...
+      ],
+    },
+    adult: {
+      truths: [
+        "What's your wildest fantasy?",
+        "Describe your last naughty dream.",
+        "Have you ever skinny dipped?",
+        "What's your biggest secret desire?",
+        "What's the most adventurous place you've had sex?",
+        "Ever been caught in a compromising position?",
+        "What's your favorite way to be teased?",
+        "What's one thing you've never told anyone about your sex life?",
+        "What's the kinkiest thing you've done?",
+        "Have you ever had a one-night stand?",
+        // Add more up to 80
+      ],
+      dares: [
+        "Send a flirty text to the last person you messaged.",
+        "Do a sexy dance for 30 seconds.",
+        "Whisper something naughty to the player on your left.",
+        "Show your best 'come hither' look for 15 seconds.",
+        "Take a selfie with your shirt off and send it to the group (only if comfortable).",
+        "Give a lap dance to the player on your right.",
+        "Kiss your own neck seductively.",
+        "Try to lick your elbow.",
+        "Say a dirty joke and keep a straight face.",
+        "Act out your favorite sexy movie scene.",
+        // Add more up to 80...
+      ],
+    }
+  };
+
+  const punishments = [
+    "Do 20 push-ups.",
+    "Do 10 frog jumps.",
+    "Hold a plank for 30 seconds.",
+    "Do 15 sit-ups.",
+    "Run on the spot for 1 minute.",
+    "Do 20 jumping jacks.",
+    "Do 10 burpees.",
+    "Dance like a chicken for 30 seconds.",
+    "Spin around 10 times and try to walk straight.",
+    "Do 10 squats.",
+    // Add more punishments if you want
+  ];
+
+  // Variables
+  let players = [];
+  let currentPlayerIndex = 0;
+  let currentQuestion = "";
+  let isTruth = null;
+  let timer = null;
+  let timeLeft = 30;
+  let punishmentActive = false;
+  let skipUsed = {};
+
+  // Elements
+  const categorySelect = document.getElementById('categorySelect');
+  const playersInput = document.getElementById('playersInput');
+  const startBtn = document.getElementById('startBtn');
+  const gameArea = document.getElementById('gameArea');
+  const playerTurn = document.getElementById('playerTurn');
+  const questionBox = document.getElementById('questionBox');
+  const timerEl = document.getElementById('timer');
+  const truthBtn = document.getElementById('truthBtn');
+  const dareBtn = document.getElementById('dareBtn');
+  const doubleDareBtn = document.getElementById('doubleDareBtn');
+  const skipBtn = document.getElementById('skipBtn');
+  const postQuestionButtons = document.getElementById('postQuestionButtons');
+  const doneDareBtn = document.getElementById('doneDareBtn');
+  const punishMeBtn = document.getElementById('punishMeBtn');
+  const mysteryBox = document.getElementById('mysteryBox');
+  const punishmentOverlay = document.getElementById('punishmentOverlay');
+  const punishmentText = document.getElementById('punishmentText');
+  const punishmentDoneBtn = document.getElementById('punishmentDoneBtn');
+  const changeCategoryBtn = document.getElementById('changeCategoryBtn');
+  const disclaimerOverlay = document.getElementById('disclaimerOverlay');
+  const agree18Btn = document.getElementById('agree18Btn');
+  const decline18Btn = document.getElementById('decline18Btn');
+  const devBtn = document.getElementById('devBtn');
+  const devInfo = document.getElementById('devInfo');
+
+  // Initialization
+  startBtn.onclick = () => {
+    const cat = categorySelect.value.trim();
+    if (!cat) {
+      alert("Please select a category.");
+      return;
+    }
+    players = playersInput.value.split(',').map(p => p.trim()).filter(p => p);
+    if (players.length < 2) {
+      alert("Please enter at least two player names separated by commas.");
+      return;
+    }
+    skipUsed = {};
+    players.forEach(p => skipUsed[p] = false);
+    currentPlayerIndex = 0;
+
+    if (cat === "adult") {
+      disclaimerOverlay.style.display = "flex";
+    } else {
+      startGame(cat);
+    }
+  };
+
+  agree18Btn.onclick = () => {
+    disclaimerOverlay.style.display = "none";
+    startGame("adult");
+  };
+  decline18Btn.onclick = () => {
+    disclaimerOverlay.style.display = "none";
+    alert("You must be 18 or older to access the 18+ section.");
+  };
+
+  function startGame(category) {
+    gameArea.style.display = "block";
+    categorySelect.disabled = true;
+    playersInput.disabled = true;
+    startBtn.disabled = true;
+    currentCategory = category;
+    updatePlayerTurn();
+    questionBox.textContent = "Press Truth or Dare to start!";
+    timerEl.textContent = "Time Left: --";
+    postQuestionButtons.style.display = "none";
+  }
+
+  // Update display of who's turn it is
+  function updatePlayerTurn() {
+    playerTurn.textContent = `Player: ${players[currentPlayerIndex]}`;
+  }
+
+  // Random from array helper
+  function getRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  // Show question and start timer
+  function showQuestion(isTruthChoice, doubleDare = false) {
+    if (punishmentActive) return; // Disable questions during punishment
+
+    isTruth = isTruthChoice;
+    let pool = data[currentCategory][isTruth ? 'truths' : 'dares'];
+    if (!pool || pool.length === 0) {
+      questionBox.textContent = "No questions available!";
+      return;
+    }
+    currentQuestion = getRandom(pool);
+
+    if (doubleDare && !isTruth) {
+      currentQuestion += " (DOUBLE DARE: Must do it twice!)";
+    }
+
+    questionBox.textContent = currentQuestion;
+    timeLeft = 30;
+    timerEl.textContent = `Time Left: ${timeLeft}s`;
+    startTimer();
+
+    // Show the post-question buttons ("I've done the dare", "Punish me...")
+    postQuestionButtons.style.display = "flex";
+
+    // Hide the choice buttons while answering
+    document.getElementById('choiceButtons').style.display = "none";
+  }
+
+  // Timer logic
+  function startTimer() {
+    clearInterval(timer);
+    timer = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = `Time Left: ${timeLeft}s`;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        timerEl.textContent = "Time's up!";
+        // Show punish me button automatically if it's a dare or double dare
+        if (!isTruth) {
+          showPunishment();
+        }
+        postQuestionButtons.style.display = "flex";
+        document.getElementById('choiceButtons').style.display = "none";
+      }
+    }, 1000);
+  }
+
+  // Stop timer helper
+  function stopTimer() {
+    clearInterval(timer);
+    timerEl.textContent = "Time Left: --";
+  }
+
+  // After user clicks "I've done the dare"
+  doneDareBtn.onclick = () => {
+    stopTimer();
+    nextPlayer();
+  };
+
+  // After user clicks "Punish me Daddyyyy..."
+  punishMeBtn.onclick = () => {
+    stopTimer();
+    showPunishment();
+  };
+
+  function showPunishment() {
+    punishmentActive = true;
+    mysteryBox.style.display = "block";
+    postQuestionButtons.style.display = "none";
+    questionBox.textContent = "Click the mystery box for your punishment!";
+    timerEl.textContent = "";
+  }
+
+  // Mystery box click
+  mysteryBox.onclick = () => {
+    if (!punishmentActive) return;
+    const punishment = getRandom(punishments);
+    punishmentText.textContent = punishment;
+    punishmentOverlay.style.display = "flex";
+    mysteryBox.style.display = "none";
+  };
+
+  punishmentDoneBtn.onclick = () => {
+    punishmentOverlay.style.display = "none";
+    punishmentActive = false;
+    nextPlayer();
+  };
+
+  // Next player turn
+  function nextPlayer() {
+    postQuestionButtons.style.display = "none";
+    document.getElementById('choiceButtons').style.display = "flex";
+    questionBox.textContent = "Press Truth or Dare to continue!";
+    timerEl.textContent = "Time Left: --";
+
+    // Advance to next player
+    currentPlayerIndex++;
+    if (currentPlayerIndex >= players.length) currentPlayerIndex = 0;
+    updatePlayerTurn();
+  }
+
+  // Choice buttons
+  truthBtn.onclick = () => showQuestion(true, false);
+  dareBtn.onclick = () => showQuestion(false, false);
+  doubleDareBtn.onclick = () => showQuestion(false, true);
+
+  // Skip button - one skip per player
+  skipBtn.onclick = () => {
+    const currentPlayer = players[currentPlayerIndex];
+    if (skipUsed[currentPlayer]) {
+      alert(`${currentPlayer}, you've already used your skip!`);
+      return;
+    }
+    skipUsed[currentPlayer] = true;
+    alert(`${currentPlayer} has skipped their turn!`);
+    nextPlayer();
+  };
+
+  // Change category / Restart button
+  changeCategoryBtn.onclick = () => {
+    if (confirm("Are you sure you want to restart the game? All progress will be lost.")) {
+      resetGame();
+    }
+  };
+
+  function resetGame() {
+    stopTimer();
+    players = [];
+    currentPlayerIndex = 0;
+    currentQuestion = "";
+    isTruth = null;
+    punishmentActive = false;
+    skipUsed = {};
+    categorySelect.disabled = false;
+    playersInput.disabled = false;
+    startBtn.disabled = false;
+    gameArea.style.display = "none";
+    mysteryBox.style.display = "none";
+    postQuestionButtons.style.display = "none";
+    questionBox.textContent = "";
+    timerEl.textContent = "";
+    updatePlayerTurn();
+  }
+
+  // Developer info toggle
+  devBtn.onclick = () => {
+    if (devInfo.style.display === "block") {
+      devInfo.style.display = "none";
+    } else {
+      devInfo.style.display = "block";
+    }
+  };
+</script>
+
+</body>
+</html>
